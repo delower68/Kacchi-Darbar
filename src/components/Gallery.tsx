@@ -1,0 +1,52 @@
+import React from 'react';
+import { motion } from 'motion/react';
+
+const IMAGES = [
+  'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&q=80&w=600',
+  'https://images.unsplash.com/photo-1633504715847-708ae0f9482b?auto=format&fit=crop&q=80&w=600',
+  'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&q=80&w=600',
+  'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=600',
+  'https://images.unsplash.com/photo-1626777552726-4a6b547b4e5d?auto=format&fit=crop&q=80&w=600',
+  'https://images.unsplash.com/photo-1633945274505-890209074812?auto=format&fit=crop&q=80&w=600'
+];
+
+const Gallery: React.FC = () => {
+  return (
+    <section className="py-24 overflow-hidden relative bg-charcoal">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-green/30 to-transparent" />
+      
+      <div className="container mx-auto px-6 mb-12 text-center">
+        <h2 className="text-4xl font-bold">Visual <span className="text-primary-green">Journey</span></h2>
+      </div>
+
+      <div className="flex relative items-center gap-6 py-6">
+        <motion.div 
+          className="flex gap-6 min-w-full"
+          animate={{ x: [0, -1000] }}
+          transition={{ 
+            x: {
+              repeat: Infinity,
+              repeatType: "loop",
+              duration: 25,
+              ease: "linear"
+            }
+          }}
+        >
+          {[...IMAGES, ...IMAGES].map((img, i) => (
+            <div key={i} className="flex-shrink-0 w-80 h-96 rounded-3xl overflow-hidden border border-white/10 group">
+              <img 
+                src={img} 
+                alt={`Gallery ${i}`} 
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+              />
+            </div>
+          ))}
+        </motion.div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-green/30 to-transparent" />
+    </section>
+  );
+};
+
+export default Gallery;
