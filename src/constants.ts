@@ -13,16 +13,6 @@ export const MENU_ITEMS: MenuItem[] = [
     reviews: []
   },
   {
-    id: 'basmati-kacchi-borhani-firni',
-    name: 'Basmati Kacchi, Borhani, Firni',
-    price: { p1: 430, p3: 1290, p5: 2130 },
-    description: 'Perfect combo of Kacchi, Borhani and shahi firni.',
-    category: 'Kacchi',
-    image: 'https://images.unsplash.com/photo-1633504715847-708ae0f9482b?auto=format&fit=crop&q=80&w=800',
-    rating: 4.9,
-    reviews: []
-  },
-  {
     id: 'basmati-kacchi-shorbot-kabab',
     name: 'Basmati Kacchi, Badam Shorbot, Jali Kabab',
     price: { p1: 440, p3: 1300, p5: 2200 },
