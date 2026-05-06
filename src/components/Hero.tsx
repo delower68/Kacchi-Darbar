@@ -6,18 +6,22 @@ import { MENU_ITEMS } from '../constants';
 import { MenuItem } from '../types';
 
 const PLATTER_IMAGES = [
-  'https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&q=80&w=800'
+  'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&q=80&w=800',
+  'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=800'
 ];
 
 interface HeroProps {
   onSelectItem: (item: MenuItem) => void;
+  menuItems: MenuItem[];
 }
 
-const Hero: React.FC<HeroProps> = ({ onSelectItem }) => {
+const Hero: React.FC<HeroProps> = ({ onSelectItem, menuItems }) => {
   const [activePlatter, setActivePlatter] = useState(0);
-  const featuredItems = MENU_ITEMS.slice(0, 3);
+  
+  const featuredIds = ['basmati-kacchi', 'basmati-kacchi-roast-borhani-kabab', 'jali-kabab', 'badam-shorbot'];
+  const featuredItems = menuItems.filter(item => featuredIds.includes(item.id)).slice(0, 4);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -108,7 +112,7 @@ const Hero: React.FC<HeroProps> = ({ onSelectItem }) => {
                     animate={{ opacity: 1, scale: 1, rotate: activePlatter % 2 === 0 ? 10 : -10 }}
                     exit={{ opacity: 0, scale: 1.1, rotate: 15 }}
                     transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-pointer"
+                    className="w-full aspect-square object-cover rounded-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-pointer"
                   />
                 </AnimatePresence>
               </div>

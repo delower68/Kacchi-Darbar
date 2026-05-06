@@ -32,7 +32,7 @@ const About: React.FC = () => {
         >
           <span className="text-primary-red uppercase tracking-[0.2em] font-black text-xs mb-4 block">Our Story</span>
           <h2 className="text-4xl lg:text-5xl font-bold mb-8 leading-tight">
-            Elevating the Art of <span className="text-primary-green">Traditional Kacchi</span>
+            Our Art of <span className="text-primary-green">Traditional Kacchi</span>
           </h2>
           <p className="text-white/50 text-lg mb-6 leading-relaxed">
             Kacchi Darbar was founded on the belief that authenticity cannot be rushed. Our journey began in a small kitchen, where we spent years perfecting the balance of spices and the secret of slow-cooking meat and rice in a sealed pot.

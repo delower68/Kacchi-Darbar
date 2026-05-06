@@ -11,7 +11,7 @@ const Chefs: React.FC = () => {
           <h2 className="text-4xl lg:text-5xl font-serif font-bold">Meet Our <span className="text-gold">Master Chefs</span></h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
           {CHEFS.map((chef, idx) => (
             <motion.div
               key={chef.id}
@@ -21,7 +21,7 @@ const Chefs: React.FC = () => {
               viewport={{ once: true }}
               className="group"
             >
-              <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden border-4 border-gold/10 group-hover:border-gold/50 transition-smooth mb-6">
+              <div className="relative aspect-square rounded-[2rem] overflow-hidden border-4 border-gold/10 group-hover:border-gold/50 transition-smooth mb-6">
                 <img 
                   src={chef.image} 
                   alt={chef.name}

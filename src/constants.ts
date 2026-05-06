@@ -243,12 +243,6 @@ export const CHEFS: Chef[] = [
     name: 'Chef Ahmed Safat',
     role: 'Biryani Specialist',
     image: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?q=80&w=1000&auto=format&fit=crop'
-  },
-  {
-    id: '3',
-    name: 'Chef Maria Begum',
-    role: 'Dessert Master',
-    image: 'https://images.unsplash.com/photo-1595273670150-db0a3d395403?q=80&w=1000&auto=format&fit=crop'
   }
 ];
 

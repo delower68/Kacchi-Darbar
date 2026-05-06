@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, MessageCircle, User, MapPin, Phone, Minus, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { ArrowLeft, MessageCircle, User, MapPin, Phone, Minus, Plus, Trash2, CreditCard, Banknote, Hash } from 'lucide-react';
 import { MenuItem, Outlet, Portion } from '../types';
 import { OUTLETS } from '../constants';
+
+type PaymentMethod = 'cod' | 'bkash' | 'nagad';
 
 interface CheckoutProps {
   items: { item: MenuItem; quantity: number; portion: Portion }[];
@@ -10,6 +13,7 @@ interface CheckoutProps {
   onUpdateQuantity: (id: string, portion: Portion, delta: number) => void;
   onUpdatePortion: (id: string, oldPortion: Portion, newPortion: Portion) => void;
   onRemove: (id: string, portion: Portion) => void;
+  onOrderSuccess: () => void;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ 
@@ -17,17 +21,26 @@ const Checkout: React.FC<CheckoutProps> = ({
   onBack, 
   onUpdateQuantity, 
   onUpdatePortion, 
-  onRemove 
+  onRemove,
+  onOrderSuccess
 }) => {
   const [customerName, setCustomerName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [transactionId, setTransactionId] = useState('');
   const [selectedOutlet, setSelectedOutlet] = useState<Outlet>(OUTLETS[0]);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
 
   const portionLabels = {
     p1: 'Single',
     p3: 'Double',
     p5: 'Family'
+  };
+
+  const paymentLabels = {
+    cod: 'Cash on Delivery',
+    bkash: 'bKash (Personal)',
+    nagad: 'Nagad (Personal)'
   };
 
   const calculateTotal = () => {
@@ -36,12 +49,17 @@ const Checkout: React.FC<CheckoutProps> = ({
 
   const handleOrder = () => {
     if (!customerName || !address) {
-      alert('Please fill in your name and address.');
+      toast.error('Please fill in your name and address.');
+      return;
+    }
+
+    if (paymentMethod !== 'cod' && !transactionId.trim()) {
+      toast.error(`Please enter your ${paymentLabels[paymentMethod]} Transaction ID.`);
       return;
     }
 
     if (items.length === 0) {
-      alert('Your cart is empty.');
+      toast.error('Your cart is empty.');
       return;
     }
 
@@ -49,10 +67,51 @@ const Checkout: React.FC<CheckoutProps> = ({
       .map(i => `\n*Item:* ${i.item.name}\n*Portion:* ${portionLabels[i.portion]}\n*Quantity:* ${i.quantity}\n*Price:* ৳${(i.item.price[i.portion] || i.item.price.p1) * i.quantity}`)
       .join('\n---');
 
-    const message = `*Hi Kacchi Darbar!* I would like to place an order: ${itemsSummary}\n\n*Total Order Price:* ৳${calculateTotal()}\n\n*Customer Details:*\n*Name:* ${customerName}\n*Address:* ${address}\n*Phone:* ${phone || 'N/A'}`;
+    const paymentInfo = paymentMethod === 'cod' 
+      ? `*Payment Method:* Cash on Delivery` 
+      : `*Payment Method:* ${paymentLabels[paymentMethod]}\n*Transaction ID:* ${transactionId || 'Not Provided'}\n_I have paid ৳${calculateTotal()} to your personal number._`;
+
+    const orderDetails = {
+      id: `ORD-${Date.now()}`,
+      items: items.map(i => ({
+        name: i.item.name,
+        portion: portionLabels[i.portion],
+        quantity: i.quantity,
+        price: (i.item.price[i.portion] || i.item.price.p1) * i.quantity
+      })),
+      total: calculateTotal(),
+      customer: {
+        name: customerName,
+        address: address,
+        phone: phone
+      },
+      payment: {
+        method: paymentLabels[paymentMethod],
+        transactionId: transactionId || null
+      },
+      branch: selectedOutlet.name,
+      createdAt: new Date().toISOString()
+    };
+
+    const savedOrders = JSON.parse(localStorage.getItem('kacchi_darbar_orders') || '[]');
+    localStorage.setItem('kacchi_darbar_orders', JSON.stringify([orderDetails, ...savedOrders]));
+
+    const message = `*Hi Kacchi Darbar!* I would like to place an order: ${itemsSummary}\n\n*Total Order Price:* ৳${calculateTotal()}\n\n${paymentInfo}\n\n*Customer Details:*\n*Name:* ${customerName}\n*Address:* ${address}\n*Phone:* ${phone || 'N/A'}`;
 
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${selectedOutlet.whatsapp}?text=${encodedMessage}`, '_blank');
+    
+    toast.success('Royal order placed! Redirecting...', {
+      duration: 5000,
+      style: {
+        background: '#121212',
+        color: '#fff',
+        border: '1px solid #C9A364',
+      }
+    });
+
+    // Clear cart and return to menu
+    onOrderSuccess();
   };
 
   return (
@@ -222,6 +281,64 @@ const Checkout: React.FC<CheckoutProps> = ({
 
               <div className="space-y-4">
                 <label className="flex items-center gap-2 text-white/30 font-black uppercase tracking-[0.2em] text-[10px]">
+                   Payment Method
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod('cod')}
+                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-smooth ${
+                      paymentMethod === 'cod' ? 'bg-primary-green/10 text-primary-green border-primary-green' : 'border-white/5 text-white/20 hover:border-white/20'
+                    }`}
+                  >
+                    <Banknote className="w-5 h-5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Cash</span>
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod('bkash')}
+                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-smooth ${
+                      paymentMethod === 'bkash' ? 'bg-[#D12053]/10 text-[#D12053] border-[#D12053]' : 'border-white/5 text-white/20 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="w-5 h-5 bg-[#D12053] rounded-full flex items-center justify-center text-white text-[8px] font-bold">b</div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">bKash</span>
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod('nagad')}
+                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-smooth ${
+                      paymentMethod === 'nagad' ? 'bg-[#F7941D]/10 text-[#F7941D] border-[#F7941D]' : 'border-white/5 text-white/20 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="w-5 h-5 bg-[#F7941D] rounded-full flex items-center justify-center text-white text-[8px] font-bold">n</div>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Nagad</span>
+                  </button>
+                </div>
+                {paymentMethod !== 'cod' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 text-[10px] text-white/40 leading-relaxed italic">
+                      Please send the total amount ৳{calculateTotal()} to our personal {paymentLabels[paymentMethod]} number. Then enter the Transaction ID below.
+                    </div>
+                    <div className="relative group">
+                      <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary-green transition-colors">
+                        <Hash className="w-5 h-5" />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="Transaction ID (e.g. 8N7X2W3Q)"
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white text-sm focus:outline-none focus:border-primary-green transition-smooth font-bold"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <label className="flex items-center gap-2 text-white/30 font-black uppercase tracking-[0.2em] text-[10px]">
                    Select Nearest Branch
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -240,13 +357,17 @@ const Checkout: React.FC<CheckoutProps> = ({
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={(!customerName || !address || (paymentMethod !== 'cod' && !transactionId.trim())) ? {} : { scale: 1.02 }}
+                whileTap={(!customerName || !address || (paymentMethod !== 'cod' && !transactionId.trim())) ? {} : { scale: 0.98 }}
                 onClick={handleOrder}
-                className="w-full py-6 bg-primary-green text-white font-black rounded-3xl flex items-center justify-center gap-4 shadow-2xl green-glow tracking-[0.3em] uppercase text-xs mt-12"
+                className={`w-full py-5 md:py-6 font-black rounded-2xl md:rounded-3xl flex items-center justify-center gap-3 md:gap-4 shadow-2xl tracking-[0.2em] md:tracking-[0.3em] uppercase text-[10px] md:text-xs mt-8 md:mt-12 transition-all ${
+                  (!customerName || !address || (paymentMethod !== 'cod' && !transactionId.trim()))
+                    ? 'bg-white/5 text-white/20 border border-white/5 cursor-not-allowed opacity-50'
+                    : 'bg-primary-green text-white green-glow hover:brightness-110'
+                }`}
               >
-                <MessageCircle className="w-6 h-6" />
-                Place Order via WhatsApp
+                <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
+                Place Order on WhatsApp
               </motion.button>
             </div>
           </motion.div>

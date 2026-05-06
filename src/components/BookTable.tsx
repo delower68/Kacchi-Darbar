@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { toast } from 'react-hot-toast';
 import { Calendar, Users, Clock, Send, MapPin } from 'lucide-react';
 import { OUTLETS } from '../constants';
 import { Outlet } from '../types';
@@ -25,6 +26,7 @@ const BookTable: React.FC = () => {
 *Branch:* ${selectedOutlet.name}`;
     
     window.open(`https://wa.me/${selectedOutlet.whatsapp}?text=${encodeURIComponent(message)}`, '_blank');
+    toast.success('Redirecting to WhatsApp for booking confirmation...');
   };
 
   return (
@@ -174,10 +176,10 @@ const BookTable: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full py-6 bg-primary-green text-white font-black rounded-2xl flex items-center justify-center gap-4 uppercase tracking-[0.3em] text-xs mt-4 shadow-2xl green-glow"
+                  className="w-full py-5 md:py-6 bg-primary-green text-white font-black rounded-2xl flex items-center justify-center gap-3 md:gap-4 uppercase tracking-[0.15em] md:tracking-[0.3em] text-[10px] md:text-xs mt-4 shadow-2xl green-glow"
                 >
-                  <Send className="w-5 h-5" />
-                  Request Booking via WhatsApp
+                  <Send className="w-4 h-4 md:w-5 md:h-5 flex-none" />
+                  <span className="leading-none">REQUEST BOOKING A TABLE</span>
                 </motion.button>
               </form>
             </div>

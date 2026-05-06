@@ -1,7 +1,24 @@
-import React from 'react';
-import { Facebook, Instagram, Twitter, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Facebook, Instagram, Twitter, MessageCircle, Send } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const Footer: React.FC = () => {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    toast.success('Welcome to the Darbar inner circle!', {
+      style: {
+        background: '#121212',
+        color: '#fff',
+        border: '1px solid #39C481',
+      }
+    });
+    setEmail('');
+  };
+
   return (
     <footer className="bg-charcoal pt-32 pb-12 border-t border-white/5">
       <div className="container mx-auto px-6">
@@ -49,16 +66,21 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-[10px]">Join Our List</h4>
             <p className="text-white/40 text-sm mb-6 leading-relaxed">Get royal offers and new menu updates delivered to your inbox.</p>
-            <div className="flex gap-2">
+            <form onSubmit={handleSubscribe} className="flex gap-2">
               <input 
                 type="email" 
                 placeholder="Your email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-primary-green outline-none w-full transition-smooth"
               />
-              <button className="bg-primary-red text-white p-4 rounded-2xl font-bold shadow-lg red-glow">
-                <MessageCircle className="w-5 h-5" />
+              <button 
+                type="submit"
+                className="bg-primary-red text-white p-4 rounded-2xl font-bold shadow-lg red-glow"
+              >
+                <Send className="w-5 h-5" />
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
@@ -67,6 +89,12 @@ const Footer: React.FC = () => {
           <div className="flex gap-8">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <button 
+              onClick={() => (window as any).toggleAdmin?.()} 
+              className="hover:text-white transition-colors cursor-pointer"
+            >
+              Admin Portal
+            </button>
           </div>
         </div>
       </div>

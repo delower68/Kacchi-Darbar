@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { X, ShoppingBag, Trash2 } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
+import { useScroll, useSpring } from 'motion/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -21,12 +23,39 @@ import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import StickyOrder from './components/StickyOrder';
 import Checkout from './components/Checkout';
+import OrderHistory from './components/OrderHistory';
+import Admin from './components/Admin';
 import { MenuItem, Portion } from './types';
+import { MENU_ITEMS } from './constants';
 
 export default function App() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [cart, setCart] = useState<{item: MenuItem; quantity: number; portion: Portion}[]>([]);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('kacchi_darbar_menu');
+      return saved ? JSON.parse(saved) : MENU_ITEMS;
+    }
+    return MENU_ITEMS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('kacchi_darbar_menu', JSON.stringify(menuItems));
+  }, [menuItems]);
+
+  const [cart, setCart] = useState<{item: MenuItem; quantity: number; portion: Portion}[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('kacchi_darbar_cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    }
+    return [];
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('kacchi_darbar_cart', JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (item: MenuItem, portion: Portion = 'p1') => {
     setCart(prev => {
@@ -37,10 +66,41 @@ export default function App() {
       return [...prev, { item, quantity: 1, portion }];
     });
     setIsCartOpen(true);
+    toast.success(`${item.name} added to cart!`, {
+      style: {
+        background: '#121212',
+        color: '#fff',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+      },
+      iconTheme: {
+        primary: '#C9A364',
+        secondary: '#fff',
+      },
+    });
   };
 
   const removeFromCart = (id: string, portion: Portion) => {
-    setCart(prev => prev.filter(i => !(i.item.id === id && i.portion === portion)));
+    setCart(prev => {
+      const itemToRemove = prev.find(i => i.item.id === id && i.portion === portion);
+      if (itemToRemove) {
+        toast.error(`${itemToRemove.item.name} removed`, {
+          style: {
+            background: '#121212',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '16px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+          },
+        });
+      }
+      return prev.filter(i => !(i.item.id === id && i.portion === portion));
+    });
   };
 
   const updateQuantity = (id: string, portion: Portion, delta: number) => {
@@ -78,8 +138,17 @@ export default function App() {
   // Expose to window for Navbar access
   if (typeof window !== 'undefined') {
     (window as any).toggleCart = () => setIsCartOpen(!isCartOpen);
+    (window as any).toggleOrders = () => setIsOrdersOpen(!isOrdersOpen);
+    (window as any).toggleAdmin = () => setIsAdminOpen(!isAdminOpen);
     (window as any).cartCount = cart.reduce((acc, curr) => acc + curr.quantity, 0);
   }
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   if (isCheckingOut) {
     return (
@@ -90,6 +159,10 @@ export default function App() {
           onUpdateQuantity={updateQuantity}
           onUpdatePortion={updatePortion}
           onRemove={removeFromCart}
+          onOrderSuccess={() => {
+            setCart([]);
+            setIsCheckingOut(false);
+          }}
         />
       </div>
     );
@@ -97,6 +170,11 @@ export default function App() {
 
   return (
     <div className="relative selection:bg-primary-red selection:text-white bg-charcoal">
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gold z-[101] origin-left"
+        style={{ scaleX }}
+      />
+      <Toaster position="top-center" />
       <Navbar />
       
       {/* Cart Sidebar */}
@@ -175,14 +253,31 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {isOrdersOpen && (
+          <OrderHistory onClose={() => setIsOrdersOpen(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isAdminOpen && (
+          <Admin 
+            onClose={() => setIsAdminOpen(false)} 
+            menuItems={menuItems}
+            onUpdateMenu={setMenuItems}
+          />
+        )}
+      </AnimatePresence>
+
       <main>
-        <Hero onSelectItem={addToCart} />
+        <Hero onSelectItem={addToCart} menuItems={menuItems} />
         <Features />
         <Stats />
         <About />
         <Menu 
           onSelectItem={addToCart} 
           onAddToCart={addToCart} 
+          menuItems={menuItems}
         />
         <Gallery />
         <BookTable />

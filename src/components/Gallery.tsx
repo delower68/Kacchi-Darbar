@@ -3,10 +3,7 @@ import { motion } from 'motion/react';
 
 const IMAGES = [
   'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1633504715847-708ae0f9482b?auto=format&fit=crop&q=80&w=600',
   'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=600',
-  'https://images.unsplash.com/photo-1626777552726-4a6b547b4e5d?auto=format&fit=crop&q=80&w=600',
   'https://images.unsplash.com/photo-1633945274505-890209074812?auto=format&fit=crop&q=80&w=600'
 ];
 

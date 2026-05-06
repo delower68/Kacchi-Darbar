@@ -7,17 +7,18 @@ import { MenuItem, Category, Outlet } from '../types';
 interface MenuProps {
   onSelectItem: (item: MenuItem) => void;
   onAddToCart: (item: MenuItem) => void;
+  menuItems: MenuItem[];
 }
 
-const Menu: React.FC<MenuProps> = ({ onSelectItem, onAddToCart }) => {
+const Menu: React.FC<MenuProps> = ({ onSelectItem, onAddToCart, menuItems }) => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories: (Category | 'All')[] = ['All', 'Kacchi', 'Polao', 'Tehri', 'Others', 'Drinks & Dessert'];
 
   const filteredItems = (selectedCategory === 'All' 
-    ? MENU_ITEMS 
-    : MENU_ITEMS.filter(item => item.category === selectedCategory)
+    ? menuItems 
+    : menuItems.filter(item => item.category === selectedCategory)
   ).filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -35,7 +36,7 @@ const Menu: React.FC<MenuProps> = ({ onSelectItem, onAddToCart }) => {
             <img 
               src="https://images.deliveryhero.io/image/talabat/restaurants/Logo639025375656171984.jpg?width=180" 
               alt="Kacchi Darbar Logo" 
-              className="w-24 h-24 rounded-full border-2 border-primary-green p-1 shadow-lg shadow-primary-green/20"
+              className="w-24 h-24 rounded-full border-2 border-primary-green p-1 shadow-lg shadow-primary-green/20 object-cover"
             />
           </motion.div>
           <motion.span 
@@ -99,48 +100,61 @@ const Menu: React.FC<MenuProps> = ({ onSelectItem, onAddToCart }) => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
           <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ y: -10 }}
-                className="group bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-white/10 shadow-2xl transition-smooth"
+            {filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ y: -10 }}
+                  className="group bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/5 hover:border-white/10 shadow-2xl transition-smooth"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden m-3 rounded-[2rem]">
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1">
+                      <Star className="w-3 h-3 text-accent-yellow fill-accent-yellow" />
+                      <span className="text-xs font-bold">{item.rating}</span>
+                    </div>
+                  </div>
+                  <div className="p-6 pt-2">
+                    <div>
+                      <h3 className="text-lg font-bold mb-1 group-hover:text-primary-green transition-colors leading-tight truncate px-1" title={item.name}>{item.name}</h3>
+                      <p className="text-white/40 text-[10px] mb-4 line-clamp-1">{item.description}</p>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <span className="text-primary-green font-black text-lg leading-none">৳{item.price.p1}</span>
+                      </div>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); onAddToCart(item); }}
+                          className="flex-1 ml-4 py-3 bg-primary-green text-white font-black rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-primary-green/20 hover:scale-105 active:scale-95 transition-smooth"
+                          title="Add to Cart"
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="col-span-full py-20 text-center"
               >
-                <div className="relative aspect-[4/3] overflow-hidden m-3 rounded-[2rem]">
-                  <img 
-                    src={item.image} 
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1">
-                    <Star className="w-3 h-3 text-accent-yellow fill-accent-yellow" />
-                    <span className="text-xs font-bold">{item.rating}</span>
-                  </div>
+                <div className="bg-white/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <SearchIcon className="w-8 h-8 text-white/10" />
                 </div>
-                <div className="p-6 pt-2">
-                  <div>
-                    <h3 className="text-lg font-bold mb-1 group-hover:text-primary-green transition-colors leading-tight">{item.name}</h3>
-                    <p className="text-white/40 text-[10px] mb-4 line-clamp-1">{item.description}</p>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-tighter text-white/30 font-black">Starting from</span>
-                      <span className="text-primary-red font-black text-lg leading-none">৳{item.price.p1}</span>
-                    </div>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onAddToCart(item); }}
-                        className="flex-1 ml-4 py-3 bg-primary-green text-white font-black rounded-xl text-[10px] uppercase tracking-widest shadow-lg shadow-primary-green/20 hover:scale-105 active:scale-95 transition-smooth"
-                        title="Add to Cart"
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                </div>
+                <h3 className="text-xl font-bold text-white mb-2">No royal dishes found</h3>
+                <p className="text-white/30 text-sm">Try searching for something else or browse categories.</p>
               </motion.div>
-            ))}
+            )}
           </AnimatePresence>
         </motion.div>
       </div>
