@@ -20,7 +20,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ onSelectItem, menuItems }) => {
   const [activePlatter, setActivePlatter] = useState(0);
   
-  const featuredIds = ['basmati-kacchi', 'basmati-kacchi-roast-borhani-kabab', 'jali-kabab', 'badam-shorbot'];
+  const featuredIds = ['basmati-kacchi', 'jali-kabab', 'badam-shorbot'];
   const featuredItems = menuItems.filter(item => featuredIds.includes(item.id)).slice(0, 4);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ const Hero: React.FC<HeroProps> = ({ onSelectItem, menuItems }) => {
                   <motion.img 
                     key={activePlatter}
                     src={PLATTER_IMAGES[activePlatter]} 
-                    alt="Delicious Food"
+                    alt={`Delicious ${['Kacchi Biryani', 'Mutton Kacchi', 'Basmati Rice Platter', 'Traditional Biryani'][activePlatter] || 'Kacchi Darbar Food Selection'}`}
                     initial={{ opacity: 0, scale: 0.9, rotate: -15 }}
                     animate={{ opacity: 1, scale: 1, rotate: activePlatter % 2 === 0 ? 10 : -10 }}
                     exit={{ opacity: 0, scale: 1.1, rotate: 15 }}

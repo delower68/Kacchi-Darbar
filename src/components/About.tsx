@@ -16,7 +16,7 @@ const About: React.FC = () => {
           <div className="relative z-10 rounded-[3rem] overflow-hidden border-2 border-white/5 shadow-2xl">
             <img 
               src="https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&q=80&w=1000" 
-              alt="Restaurant Ambiance"
+              alt="Kacchi Darbar Premium Authentic Biryani Ambiance and Serving"
               className="w-full h-full object-cover aspect-[4/5]"
             />
           </div>
@@ -36,9 +36,6 @@ const About: React.FC = () => {
           </h2>
           <p className="text-white/50 text-lg mb-6 leading-relaxed">
             Kacchi Darbar was founded on the belief that authenticity cannot be rushed. Our journey began in a small kitchen, where we spent years perfecting the balance of spices and the secret of slow-cooking meat and rice in a sealed pot.
-          </p>
-          <p className="text-white/50 text-lg mb-10 leading-relaxed">
-            Today, we are proud to serve thousands of happy customers across Dhaka, staying true to our roots while providing a premium dining experience that honors the heritage.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
